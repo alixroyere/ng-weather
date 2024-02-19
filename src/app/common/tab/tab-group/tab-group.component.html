@@ -1,0 +1,17 @@
+@if (visibleTabs()?.length) {
+    <div>
+        @for (tab of visibleTabs(); track tab) {
+            <div class="tab bg-primary text-white border-dark"
+                 [class.selected]="tab.isSelected"
+                 (click)="select(tab)"
+            >
+                <span>{{ tab.label }}</span>
+                <span class="close" (click)="remove(tab)">&times;</span>
+            </div>
+        }
+    </div>
+
+    <div class="tab-content-container">
+        <ng-content></ng-content>
+    </div>
+}

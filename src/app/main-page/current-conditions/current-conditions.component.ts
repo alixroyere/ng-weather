@@ -15,9 +15,12 @@ export class CurrentConditionsComponent {
     protected weatherService = inject(WeatherService);
     protected locationService = inject(LocationService);
     protected currentConditionsByZip: Signal<ConditionsAndZip[]> = this.weatherService.getCurrentConditions();
-    protected trackByZip = (_, condition: ConditionsAndZip) => condition.zip;
 
     showForecast(zipcode: string) {
         this.router.navigate(['/forecast', zipcode])
+    }
+
+    removeLocation(location: ConditionsAndZip): void {
+        this.locationService.removeLocation(location.zip);
     }
 }
