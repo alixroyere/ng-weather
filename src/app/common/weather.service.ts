@@ -7,7 +7,7 @@ import {Forecast} from '../forecasts-list/forecast.type';
 import {LocationService} from './location.service';
 import {tap} from 'rxjs/operators';
 
-@Injectable()
+@Injectable({providedIn: 'root'})
 export class WeatherService {
 
     static URL = 'http://api.openweathermap.org/data/2.5';
@@ -17,17 +17,26 @@ export class WeatherService {
 
     constructor(private locationService: LocationService, private http: HttpClient) {
         this.locationService.getLocations()().forEach(zip => this.addCurrentCondition(zip));
-        /*
-           I'm not handling subscriptions as this service is provided only 1 time and in AppModule.
-           Thus, the service is not destroyed until we leave the app, which will clean everything
-        */
-        this.locationService.getAddedLocation().pipe(tap(zip => this.addCurrentCondition(zip))).subscribe();
+        this.locationService.getAddedLocation().pipe(tap(zip =>
+            this.addCurrentCondition(zip))).subscribe();
         this.locationService.getRemovedLocation().pipe(tap(zip => this.removeCurrentConditions(zip))).subscribe();
     }
 
     addCurrentCondition(zipcode: string): void {
         this.http.get<CurrentConditions>(`${WeatherService.URL}/weather?zip=${zipcode},us&units=imperial&APPID=${WeatherService.APPID}`)
-            .subscribe(data => this.currentConditionsAndZip.update(conditions => [...conditions, {zip: zipcode, data}]));
+            .pipe(
+                tap({
+                        next: data =>
+                            this.currentConditionsAndZip.update(conditions => [...conditions, {zip: zipcode, data}]),
+                        error: err => {
+                            if (err.status === 404) {
+                                this.locationService.removeLocation(zipcode);
+                            }
+                        }
+                    }
+                )
+            )
+            .subscribe();
     }
 
     removeCurrentConditions(zipcode: string) {
@@ -41,9 +50,7 @@ export class WeatherService {
     }
 
     getForecast(zipcode: string): Observable<Forecast> {
-        // Here we make a request to get the forecast data from the API. Note the use of backticks and an expression to insert the zipcode
         return this.http.get<Forecast>(`${WeatherService.URL}/forecast/daily?zip=${zipcode},us&units=imperial&cnt=5&APPID=${WeatherService.APPID}`);
-
     }
 
     getWeatherIcon(id: number): string {

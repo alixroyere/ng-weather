@@ -3,7 +3,7 @@ import {Observable, Subject} from 'rxjs';
 
 export const LOCATIONS = 'locations';
 
-@Injectable()
+@Injectable({providedIn: 'root'})
 export class LocationService {
 
     private locations: WritableSignal<Set<string>> = signal(new Set());
