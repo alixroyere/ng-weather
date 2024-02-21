@@ -1,0 +1,18 @@
+<div class="well">
+    <h2>Cache settings</h2>
+
+    <h3>Delete cache</h3>
+    <button (click)="clearCache()"> Clear all cached data</button>
+
+    <h3>Update cache duration</h3>
+    <p>Cache duration for next queries: {{ formattedCurrentCacheDuration }} </p>
+    <span>Update cache duration to:</span>
+    <ul>
+        @for (choice of durationChoices; track choice) {
+            <li>
+                <button (click)="updateCacheDuration(choice.value)">{{ choice.text }}</button>
+            </li>
+        }
+    </ul>
+
+</div>
