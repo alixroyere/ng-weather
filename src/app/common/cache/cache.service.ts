@@ -7,7 +7,7 @@ import {add, Duration, isBefore} from 'date-fns';
 export class CacheService {
     cacheDuration: Duration = {hours: 2, minutes: 0, seconds: 0};
 
-    retrieve(key: string): any {
+    retrieve<T>(key: string): T {
         const cachedItemString = localStorage.getItem(key);
         // no cache for this key
         if (!cachedItemString) {
@@ -15,7 +15,7 @@ export class CacheService {
         }
         const cache = JSON.parse(cachedItemString);
         const expirationDate: Date = cache[0];
-        const cachedData: any = cache[1];
+        const cachedData: T = cache[1];
 
         // expired cache for this key
         if (isBefore(expirationDate, new Date())) {
@@ -27,7 +27,7 @@ export class CacheService {
         return cachedData;
     }
 
-    set(key: string, value: any): void {
+    set<T>(key: string, value: T): void {
         const expirationDate = add(new Date(), this.cacheDuration);
         localStorage.setItem(key, JSON.stringify([expirationDate, value]));
     }

@@ -4,7 +4,7 @@ import {CacheService} from './cache.service';
 import {of} from 'rxjs';
 import {tap} from 'rxjs/operators';
 
-export const cachingInterceptor: HttpInterceptorFn = (req: HttpRequest<any>, next: HttpHandlerFn) => {
+export const cachingInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, next: HttpHandlerFn) => {
     const cacheService = inject(CacheService);
     const cachedResponseBody = cacheService.retrieve(req.url);
 
@@ -16,5 +16,5 @@ export const cachingInterceptor: HttpInterceptorFn = (req: HttpRequest<any>, nex
         };
     }
 
-    return cachedResponseBody ? of(new HttpResponse<any>({body: cachedResponseBody})) : next(req).pipe(tap(cacheResponse()));
+    return cachedResponseBody ? of(new HttpResponse<unknown>({body: cachedResponseBody})) : next(req).pipe(tap(cacheResponse()));
 };
