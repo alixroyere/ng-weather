@@ -1,4 +1,4 @@
-import {Component, computed, contentChildren, effect, Signal} from '@angular/core';
+import {Component, computed, contentChildren, effect, signal, Signal, WritableSignal} from '@angular/core';
 import {TabComponent} from '../tab/tab.component';
 
 @Component({
@@ -9,9 +9,11 @@ import {TabComponent} from '../tab/tab.component';
 })
 export class TabGroupComponent {
     private tabs: Signal<readonly TabComponent[]> = contentChildren(TabComponent);
-    protected visibleTabs: Signal<TabComponent[]> = computed(() =>
-        this.tabs().filter(tab => !tab.isRemoved)
-    );
+    private tabRefresher: WritableSignal<boolean> = signal(false);
+    protected visibleTabs: Signal<TabComponent[]> = computed(() => {
+        this.tabRefresher();
+        return this.tabs().filter(tab => !tab.isRemoved);
+    });
 
     constructor() {
         effect(() => {
@@ -26,6 +28,7 @@ export class TabGroupComponent {
 
     remove(tabToRemove: TabComponent): void {
         tabToRemove.remove();
+        this.tabRefresher.update(value => !value);
     }
 
     private selectFirstTabByDefault(): void {
